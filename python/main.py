@@ -74,10 +74,7 @@ def add_item(name: str = Form(...), category: str = Form(...), image: str = Form
 def show_list_of_items():
     try:
         with open('items.json', 'r') as f:
-            line = f.read()
-            return (line)
-        # 標準出力されるとき邪魔なエスケープ文字が入ってしまう
-        # （print/logger.infoで出力するときはエスケープ文字は現れない）
+            return (json.load(f))
     except FileNotFoundError:
         return ("no items")
 
