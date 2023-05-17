@@ -52,21 +52,21 @@ def add_item(name: str = Form(...), category: str = Form(...), image: str = Form
              "image_filename" : f"{hash_img}"
             }]}
     
-    try:
-        with open('items.json', 'r') as f:
-            # Error handling (empty json file)
-            if os.path.getsize('items.json')== 0:
-                with open('items.json', 'w') as f:
-                        json.dump(log, f)
-            else:
-                read_data = json.load(f)
-                save_data = [read_data, log]
-                with open('items.json', 'w') as f:
-                    json.dump(save_data, f)
-    # Error handling(no file) 
-    except FileNotFoundError:
+    # Error handling(no file)
+    if os.path.isfile('items.json') == False:
         with open('items.json', 'w+') as f:
             json.dump(log, f)
+    # Error handling (empty json file)
+    elif os.path.getsize('items.json') == 0:
+        with open('items.json', 'w') as f:
+            json.dump(log, f)
+    else:
+        with open('items.json', 'r') as f:
+            read_data = json.load(f)
+            #print(read_data[0][0])
+            save_data = [read_data, log["items"]]
+            with open('items.json', 'w') as f:
+                json.dump(save_data, f)        
 
     return ({"message": f"item received: {name}"})
 
