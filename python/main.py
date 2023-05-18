@@ -46,8 +46,8 @@ def add_item(name: str = Form(...), category: str = Form(...), image: str = Form
         hash_img = "..."
 
     # add log to a json file
-    log = { "items" : [
-            {"name" : f"{name}",
+    log = { "items" : 
+            [{"name" : f"{name}",
              "category": f"{category}",
              "image_filename" : f"{hash_img}"
             }]}
@@ -63,10 +63,11 @@ def add_item(name: str = Form(...), category: str = Form(...), image: str = Form
     else:
         with open('items.json', 'r') as f:
             read_data = json.load(f)
-            #print(read_data[0][0])
-            save_data = [read_data, log["items"]]
+            read_data = read_data["items"]
+            read_data.append({"name" : f"{name}", "category": f"{category}", "image_filename" : f"{hash_img}"})
+            log = {"items": read_data}
             with open('items.json', 'w') as f:
-                json.dump(save_data, f)        
+                json.dump(log, f)        
 
     return ({"message": f"item received: {name}"})
 
