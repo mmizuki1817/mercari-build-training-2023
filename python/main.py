@@ -40,33 +40,34 @@ def add_item(name: str = Form(...), category: str = Form(...), image: str = Form
             ext = ".jpg"
             hash_img = sha256 + ext
             os.rename(copy, f"./images/{hash_img}")
-    # error handling
+    # Error handling (no image)
     else:
         logger.info("Image not found")
         hash_img = "..."
 
     # add log to a json file
-    log = { "items" : [
-            {"name" : f"{name}",
+    log = { "items" : 
+            [{"name" : f"{name}",
              "category": f"{category}",
              "image_filename" : f"{hash_img}"
             }]}
     
-    # if json file is empty
-    if os.path.getsize('items.json')== 0:
+    # Error handling(no file)
+    if os.path.isfile('items.json') == False:
+        with open('items.json', 'w+') as f:
+            json.dump(log, f)
+    # Error handling (empty json file)
+    elif os.path.getsize('items.json') == 0:
         with open('items.json', 'w') as f:
-                json.dump(log, f)
+            json.dump(log, f)
     else:
-        try:
-            with open('items.json', 'r') as f:
-                read_data = json.load(f)
-                save_data = [read_data, log]
-                with open('items.json', 'w') as f:
-                    json.dump(save_data, f)
-        # Error handling 
-        except FileNotFoundError:
-            with open('items.json', 'w+') as f:
-                json.dump(log, f)
+        with open('items.json', 'r') as f:
+            read_data = json.load(f)
+            read_data = read_data["items"]
+            read_data.append({"name" : f"{name}", "category": f"{category}", "image_filename" : f"{hash_img}"})
+            log = {"items": read_data}
+            with open('items.json', 'w') as f:
+                json.dump(log, f)        
 
     return ({"message": f"item received: {name}"})
 
@@ -74,10 +75,7 @@ def add_item(name: str = Form(...), category: str = Form(...), image: str = Form
 def show_list_of_items():
     try:
         with open('items.json', 'r') as f:
-            line = f.read()
-            return (line)
-        # 標準出力されるとき邪魔なエスケープ文字が入ってしまう
-        # （print/logger.infoで出力するときはエスケープ文字は現れない）
+            return (json.load(f))
     except FileNotFoundError:
         return ("no items")
 
@@ -86,7 +84,7 @@ def show_detail_of_item(item_id):
     with open('items.json', 'r') as f:
         jsn = []
         jsn = json.load(f)
-        # Error handling 
+        # Error handling (invalid item_id)
         if item_id.isnumeric()==False or int(item_id) < 1 or int(item_id) > len(jsn):
             return("invalid id")
         return(jsn[int(item_id) - 1])
