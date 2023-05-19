@@ -10,7 +10,8 @@ WORKDIR /app
 COPY python python 
 COPY db db
 
-RUN pip install --no-cache-dir --upgrade -r /app/python/requirements.txt
+COPY /python/requirements.txt .
+RUN pip install --no-cache-dir --upgrade -r requirements.txt
 RUN mkdir -p /app/db && mkdir -p /app/python/images
 
 RUN chown -R trainee:mercari /app/db
